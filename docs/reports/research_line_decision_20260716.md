@@ -4,6 +4,24 @@
 范围：服务器 34 的 `/data2/wangmeiqi`，重点为 FFT、KV 频域压缩和
 `learnable_logic_hadamard_mixer_20260716`。
 
+## 数值验证补充
+
+本文件前半部分记录整理时对旧原型的判断。此后 FFT_Com 新增了独立、
+不复用旧 FreqKV/fourier_trans 实现的 NumPy 评测框架，并在真实
+Llama-2-7B 权重上完成五种子块级验证。
+
+新证据把“频域方向整体暂停”细化为：
+
+- 继续 Hadamard/FFT/DCT 作为量化前正交基选择的模型级验证；
+- 停止原始 channel order 上的 DCT/FFT 低频裁剪；
+- 暂停当前 DCT sparse base + Hadamard residual；
+- 停止朴素纯吸引 Kuramoto 离线旋转；
+- learned rotation 只有超过 best-of-N random 的留出集结果后才升级。
+
+详见
+[`transform_potential_study_20260716.md`](transform_potential_study_20260716.md)。
+旧目录的实现和宣传结论仍不因此恢复有效。
+
 ## 一、目录应分成四部分
 
 ### A. 当前主线：离散逻辑与可部署交易路径

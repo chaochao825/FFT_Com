@@ -1,0 +1,10 @@
+section,probe,blocks,initial_order_parameter_count,initial_order_parameter_mean,initial_order_parameter_std,final_order_parameter_count,final_order_parameter_mean,final_order_parameter_std,paired_angle_rms_count,paired_angle_rms_mean,paired_angle_rms_std,identity_relative_mse_count,identity_relative_mse_mean,identity_relative_mse_std,kuramoto_relative_mse_count,kuramoto_relative_mse_mean,kuramoto_relative_mse_std,error_ratio_count,error_ratio_mean,error_ratio_std,method,phase_bits_per_pair,phase_bits_per_weight,phase_only_relative_mse
+kuramoto_rotation,attractive_relative_phase,16,16,0.162036328016,0.0610128246107,16,1,5.55111512313e-17,16,1.06975670309e-15,4.28201704633e-16,16,0.258568321944,0.0961330142548,16,0.258568321944,0.0961330142548,16,1,8.24298540809e-16,,,,
+phase_coding,,,,,,,,,,,,,,,,,,,,,uniform_phase_2bit,2,0.9990234375,0.19839702118
+phase_coding,,,,,,,,,,,,,,,,,,,,,uniform_phase_3bit,3,1.49853515625,0.0513016905317
+phase_coding,,,,,,,,,,,,,,,,,,,,,uniform_phase_4bit,4,1.998046875,0.012795520363
+phase_coding,,,,,,,,,,,,,,,,,,,,,frequency_template_residual_2bit,2.4,1.198828125,0.198110724653
+phase_coding,,,,,,,,,,,,,,,,,,,,,frequency_template_residual_3bit,3.4,1.69833984375,0.050993856259
+phase_coding,,,,,,,,,,,,,,,,,,,,,global_circular_codebook_4,2.00078201369,0.9994140625,0.198289338591
+phase_coding,,,,,,,,,,,,,,,,,,,,,global_circular_codebook_8,3.00156402737,1.49931640625,0.051201226445
+phase_coding,,,,,,,,,,,,,,,,,,,,,global_circular_codebook_16,4.00312805474,1.999609375,0.0127488100153

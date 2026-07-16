@@ -14,3 +14,17 @@
 使用这些项目进行实验时，应在结果 protocol 中记录精确 commit、补丁和
 许可证，并把本地补丁单独保存。不能把第三方源码复制进 `FFT_Com`
 后作为自己的实现发布。
+
+## 本轮理论边界参考（未镜像）
+
+以下均为已有工作，只用于定义比较边界，不属于 FFT_Com 自己的方法：
+
+- [QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs](https://arxiv.org/abs/2404.00456)
+- [SpinQuant: LLM quantization with learned rotations](https://arxiv.org/abs/2405.16406)
+- [FlatQuant: Flatness Matters for LLM Quantization](https://arxiv.org/abs/2410.09426)
+- [Kuramoto Oscillatory Phase Encoding](https://arxiv.org/abs/2604.07904)
+  及其 [Microsoft 官方实现](https://github.com/microsoft/Neuro-inspired_Phase_Encoding/blob/main/vit_kope.py)
+
+QuaRot/SpinQuant/FlatQuant 属于模型量化旋转参考；KoPE 属于动态 token
+phase state。FFT_Com 本轮的 learned butterfly 和 offline Kuramoto probe
+只是自己的受限验证，不是这些论文的复现或改名实现。

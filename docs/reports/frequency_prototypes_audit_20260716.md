@@ -2,6 +2,12 @@
 
 日期：2026-07-16
 
+> 后续状态：本审计针对旧 FFTNet/FreqKV/fourier_trans/order_test。
+> FFT_Com 此后从零加入了独立的变换压缩评测实现和真实权重数值实验，
+> 没有继续修补这些旧脚本。新结果见
+> [`transform_potential_study_20260716.md`](transform_potential_study_20260716.md)；
+> 本文对旧实现错误的判断保持不变。
+
 ## 1. FFTNet 根目录：权重频谱探索
 
 ### 实际存在的证据

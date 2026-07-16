@@ -3,6 +3,10 @@
 任何 frequency-KV、attention/Hadamard mixer 和 full-discrete 方法，只有
 满足本协议后才进入同一结论表。
 
+Hadamard、DCT、FFT、learned rotation 和 Kuramoto-inspired 权重压缩还
+必须满足
+[`transform_compression_protocol.md`](transform_compression_protocol.md)。
+
 ## 冻结项
 
 - 模型结构、参数量、tokenizer、数据版本和 split
