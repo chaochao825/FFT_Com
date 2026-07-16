@@ -1,0 +1,11 @@
+artifact_group,artifact,remote_path,observed_state,evidence_level,interpretation
+source,placeholder_metrics,/data2/wangmeiqi/FFTNet/KV_FFT/freqkv_example.py,"lines 518-519 assign 0.90/0.85 and explicitly comment Placeholder",source_code,"specific K/V energy numbers are not measurements"
+source,synthetic_generator,/data2/wangmeiqi/FFTNet/KV_FFT/freqkv_example.py,"independent Gaussian K/V; position-wise orthogonal RoPE-like rotation only on K",source_code,"does not create low-frequency sequence structure"
+source,historical_analysis,/data2/wangmeiqi/FFTNet/KV_FFT/freqkv_final_analysis.py,"labels frequency size as after RFFT and writes 15 PNG files",source_code,"confirms the historical analysis used the rFFT-shaped domain"
+provenance,exact_may_source_snapshot,/data2/wangmeiqi/FFTNet/KV_FFT,"top-level directory is not a Git repository; retained freqkv_example.py mtime is 2025-09-17",source_snapshot_limit,"exact byte-identical source for the 2025-05-16 run is unavailable"
+result,final_png_set,/data2/wangmeiqi/FFTNet/KV_FFT/freqkv_final_results,"15 PNG files dated 2025-05-16",historical_executed_plot,"real synthetic execution artifacts; not placeholders"
+result,progress_log,/data2/wangmeiqi/FFTNet/KV_FFT/analysis_logs/analysis_log_20250516_190458.txt,"2164-byte completion log without metric values",historical_log,"proves execution progress only"
+result,numeric_result_files,/data2/wangmeiqi/FFTNet/KV_FFT,"no FreqKV CSV/JSON/NPY/NPZ/PT/PTH result payload found",missing_evidence,"historical plot values cannot be recovered as exact stored arrays"
+document,analysis_summary,/data2/wangmeiqi/FFTNet/KV_FFT/freqkv_analysis_summary.md,"claims 30-50% size retains 85-95% energy",unsupported_summary,"contradicted by the generated plots and corrected rerun"
+integration,real_model_test,/data2/wangmeiqi/FFTNet/KV_FFT/test_freqkv.py,"model load failure falls back to demo; loop does not pass past_key_values",prototype_only,"does not establish real-model generation quality"
+integration,compact_payload,/data2/wangmeiqi/FFTNet/KV_FFT/freqkv_example.py,"returns full-size and reconstructed tensors; no serialized compact representation",missing_evidence,"cannot support a deployed memory-compression claim"

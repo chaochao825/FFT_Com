@@ -11,6 +11,40 @@
 
 初次整理：2026-07-16；模型级复核更新：2026-07-17。
 
+## 2026-07-17 FreqKV 历史重评与真实 KV 初步验证
+
+- **不是所有历史结果都是占位符**：`0.90/0.85` 两项 energy metric
+  是源码明确标注的硬编码 `Placeholder`；但 2025-05-16 的 15 张 PNG
+  和进度日志确实来自一次合成程序运行。
+- **正确 DCT 复核不支持低频集中**：seq64、五种子下，低频 25% 对
+  Gaussian/RoPE-like K/V 只保留 `25.07%/24.76%` 能量；低频 50%
+  保留约 `49.86%/50.10%`。
+- **历史图中的约一半能量来自实现错误**：rFFT fallback 在 irFFT 前
+  丢弃虚部；seq64 K 请求保留 90% 时，实际保留 87.88% bins，正确
+  截断能量约 89.00%，历史口径只报告 `45.46%`。
+- **正对照通过**：显式平滑的 seq64 K 在低频 25% 中保留 `99.82%`
+  能量，说明重评能够检测真正的低频结构。
+- **真实 Qwen2.5-1.5B K 出现可继续验证的结构**：28 层 × 4 个
+  WikiText-2 片段上，RoPE 后 K 的原始 DCT 低频 25% 能量为
+  `85.49%`；逐头逐通道去序列均值后仍为 `65.51%`，而 top-25%
+  频率 oracle 为 `70.01%`。
+- **V 较弱且必须逐层处理**：V 的原始/去均值低频 25% 能量为
+  `52.69%/43.97%`；去均值后各层 post-RoPE K 为
+  `55.51%..74.10%`，V 为 `27.01%..60.26%`。
+- **更新后的边界**：旧实现及其“4×、90%/85%、低损失”结论继续
+  撤回；真实 K 的频谱方向升级为值得做压缩注入实验，但当前没有
+  perplexity、生成质量、紧凑 payload、内存或延迟收益。
+
+完整报告和机器可读结果见：
+
+- [`docs/reports/freqkv_reassessment_20260717.md`](docs/reports/freqkv_reassessment_20260717.md)
+- [`docs/tables/freqkv_reassessment_20260717.csv`](docs/tables/freqkv_reassessment_20260717.csv)
+- [`docs/tables/freqkv_frequency_thresholds_20260717.csv`](docs/tables/freqkv_frequency_thresholds_20260717.csv)
+- [`docs/evidence/freqkv_reassessment_summary_20260717.json`](docs/evidence/freqkv_reassessment_summary_20260717.json)
+- [`docs/tables/freqkv_real_kv_results_20260717.csv`](docs/tables/freqkv_real_kv_results_20260717.csv)
+- [`docs/tables/freqkv_real_kv_thresholds_20260717.csv`](docs/tables/freqkv_real_kv_thresholds_20260717.csv)
+- [`docs/evidence/freqkv_real_kv_summary_20260717.json`](docs/evidence/freqkv_real_kv_summary_20260717.json)
+
 ## 2026-07-17 模型级复核
 
 - **合法性 sanity check 通过**：不量化时，完整 `all_input` DCT 路径
@@ -60,8 +94,10 @@
 - **不沿朴素 Kuramoto 离线旋转继续**：纯吸引同步把相对相位收敛到
   零，旋转退化为恒等；FFT 相位跨块集中度也很低。KoPE 应作为动态
   token 相位机制单独研究，不能直接作为权重压缩证据。
-- **旧 FreqKV/fourier_trans/order_test 结论不变**：它们仍是失败原型
-  或历史探索，不能支持压缩收益。
+- **旧 FreqKV/fourier_trans/order_test 不作为正证据**：FreqKV 的
+  图片是真实合成运行，但关键宣传数值是占位符，且正确复核不支持其
+  解释；旧实现停止。独立真实 KV 探针已经发现 K 的初步正信号，但
+  尚未形成模型质量或部署结论。
 
 详细依据见
 [`docs/reports/transform_potential_study_20260716.md`](docs/reports/transform_potential_study_20260716.md)、
@@ -70,6 +106,41 @@
 [`docs/reports/frequency_prototypes_audit_20260716.md`](docs/reports/frequency_prototypes_audit_20260716.md)。
 
 ## 可复现实验
+
+### FreqKV 历史结果重评
+
+该实验只依赖 NumPy，不加载模型权重：
+
+```bash
+python -m unittest discover -s tests -v
+python scripts/run_freqkv_reassessment.py --publish
+```
+
+它复现旧 Gaussian/RoPE-like 数据模型，对比正确 DCT、正确 rFFT、
+历史丢虚部 rFFT，并使用显式平滑信号作为正对照。该结果是合成反证，
+不是实际 LLM KV cache 的效果评测。
+
+### FreqKV 真实 KV 频谱探针
+
+该实验需要 PyTorch、Transformers、Datasets、SciPy、模型 checkpoint
+和本地 WikiText-2 Arrow 数据：
+
+```bash
+pip install -e '.[model-eval]'
+export CUDA_VISIBLE_DEVICES=0
+python scripts/run_freqkv_real_kv_probe.py \
+  --model-dir /path/to/Qwen2.5-1.5B \
+  --test-arrow /path/to/wikitext-test.arrow \
+  --layers 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27 \
+  --token-offsets 0,4096,8192,12288 \
+  --sequence-length 512 \
+  --output-dir runs/freqkv_real_kv \
+  --publish
+```
+
+探针同时报告原始张量和逐头逐通道去序列均值后的 DCT/rFFT 统计，并
+捕获 RoPE 前 K、RoPE 后 K 和 V cache。它不修改 attention，也不报告
+压缩后模型质量或部署收益。
 
 ### 块级频域研究
 
@@ -138,6 +209,7 @@ python scripts/summarize_model_rotation.py \
 - `checkpoint_history`：从活动 checkpoint 历史直接读取，尚非最终结果
 - `result_json`：原始小型结果文件仍存在
 - `executed_notebook`：笔记本中保留了执行输出，但未形成独立指标文件
+- `historical_executed_plot`：确认程序运行并生成图，但没有独立数值文件
 - `source_document`：数值只存在于原项目说明文档
 - `prototype_only`：只有代码、示意图或合成演示，不能支持效果结论
 - `external_reference`：第三方已有工作，只记录来源
