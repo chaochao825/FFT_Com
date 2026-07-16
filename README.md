@@ -50,7 +50,7 @@
 ## 相关仓库
 
 - 主线实现：<https://github.com/chaochao825/learnable_logic>，
-  本次整理提交 `516561f89e9f0f6a0cf8419d806be7f0e0f05f8d`
+  本次整理提交 `8aa65fbfe8650384584848c5236deac8fa717f57`
 - DayPQ：<https://github.com/chaochao825/DayPQ>
 
 ## 不在本仓库发布的内容
