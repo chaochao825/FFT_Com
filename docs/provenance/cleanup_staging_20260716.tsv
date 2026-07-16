@@ -1,0 +1,12 @@
+reason	count	bytes	original_scope	trash_root
+generated_cache	25	971519	FFTNet and fft/order_test generated caches	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+one_byte_placeholder_notebook	2	2	FFTNet/advanced_fft_analysis.ipynb; FFTNet/KV_FFT/kv_fft_demo.ipynb	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+thin_low_value_duplicate_attempt	1	304639	FFTNet/Freq_KV	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+empty_result_directory	1	4096	FFTNet/KV_FFT/freqkv_results	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+debug_image_only_output	1	30645	FFTNet/KV_FFT/debug_results	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+synthetic_mini_image_only_output	1	193208	FFTNet/KV_FFT/mini_results	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+synthetic_simple_image_only_output	1	251204	FFTNet/KV_FFT/freqkv_simple_results	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+failed_run_without_results	1	17704	fft/order_test/results/order_tests_20250426_095229	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+byte_identical_duplicate_run	1	169644	fft/order_test/results/order_tests_20250426_100628	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+empty_analysis_directory	1	4096	fft/order_test/results/order_tests_20250426_095436/analysis	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup
+empty_incomplete_attention_directory	1	4096	fft/order_test/results/order_tests_20250426_095436/attention_test	/data2/wangmeiqi/trash/20260716-144759-fft-com-cleanup

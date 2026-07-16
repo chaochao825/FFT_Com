@@ -1,0 +1,33 @@
+{
+  "source_path": "/data2/wangmeiqi/FFTNet/test.ipynb",
+  "source_sha256": "8eb6165b34f076004a808cd369ef597fa819450558ab335e67e2bf01710bccd2",
+  "source_size_bytes": 2276829,
+  "kernel": "awq",
+  "notebook_cells": 21,
+  "code_cells": 11,
+  "executed_code_cells": 8,
+  "outputs": 23,
+  "display_png_outputs": 8,
+  "embedded_output_chars": 2114392,
+  "model_load": {
+    "status": "success",
+    "source_model_path": "/data2/wangmeiqi/Llama-2-7b-chat-hf",
+    "weight_shape": [
+      4096,
+      4096
+    ]
+  },
+  "executed_analysis": [
+    "row-wise FFT visualization",
+    "column-wise FFT visualization",
+    "magnitude plots",
+    "energy plots"
+  ],
+  "not_executed": [
+    "2D FFT visualization",
+    "numeric statistics",
+    "cross-layer comparison",
+    "cross-weight-type comparison"
+  ],
+  "claim_boundary": "This is evidence of exploratory visualization on one real model weight matrix, not evidence of compression, retained energy, model quality, latency, or memory reduction."
+}
