@@ -8,7 +8,8 @@
 
 本文件前半部分记录整理时对旧原型的判断。此后 FFT_Com 新增了独立、
 不复用旧 FreqKV/fourier_trans 实现的 NumPy 评测框架，并在真实
-Llama-2-7B 权重上完成五种子块级验证。
+Llama-2-7B 权重上完成五种子块级验证；同时新增 Qwen2.5-1.5B 的真实
+KV 频谱捕获。
 
 新证据把“频域方向整体暂停”细化为：
 
@@ -16,7 +17,8 @@ Llama-2-7B 权重上完成五种子块级验证。
 - 停止原始 channel order 上的 DCT/FFT 低频裁剪；
 - 暂停当前 DCT sparse base + Hadamard residual；
 - 停止朴素纯吸引 Kuramoto 离线旋转；
-- learned rotation 只有超过 best-of-N random 的留出集结果后才升级。
+- learned rotation 只有超过 best-of-N random 的留出集结果后才升级；
+- 真实 post-RoPE K 的频谱压缩进入“值得做模型注入验证”，V 保持谨慎。
 
 详见
 [`transform_potential_study_20260716.md`](transform_potential_study_20260716.md)。
@@ -54,9 +56,17 @@ shift-add。
 - `FFTNet/fourier_trans` 的傅里叶点积探索；
 - `/data2/wangmeiqi/fft/order_test` 对上游仓库的本地未跟踪增量。
 
-这些目录有探索价值，但当前代码和证据不能支持压缩收益。建议将它们
-作为“失败原型与比较需求”保留，后续若重启频域方向，应从统一协议和
-正确的 compact payload 开始，而不是继续在旧脚本上修补。
+这些旧目录有探索价值，但其代码和证据不能支持压缩收益。FreqKV 的
+历史 PNG 确实运行过，但关键 `0.90/0.85` 是占位值，正确 DCT/rFFT
+重评也否定了其合成数据解释。建议将它们作为“失败实现、历史证据与
+比较需求”保留，而不是继续在旧脚本上修补。
+
+独立新探针在 Qwen2.5-1.5B 全部 28 层 × 4 个 512-token 片段上发现：
+去序列均值后，RoPE 后 K 的 DCT 低频 25% 能量为 `65.51%`，V 为
+`43.97%`；达到 90% 能量分别需 `65.05%` 和 `81.36%` 分量。判断因此
+更新为“优先继续 K、逐层分配、DC/AC 分离的模型注入实验”，仍不支持
+旧 4× 结论。详见
+[`freqkv_reassessment_20260717.md`](freqkv_reassessment_20260717.md)。
 
 ### C. 已有工作：第三方上游快照
 
@@ -88,11 +98,14 @@ shift-add。
    requant 边界，并逐层核对 fake-quant、交易参考和导出路径。
 4. 所有长实验持久化 JSONL、protocol、源码哈希和独立最终结果。
 5. 在同一训练预算下再加入 attention、Hadamard/LHVM 和频域基线。
+6. 对真实 post-RoPE K 实现逐层自适应 DCT 截断，先完成
+   attention-output 误差和 WikiText-2 perplexity 配对实验。
 
 ### 暂停，等待匹配证据
 
 - Hadamard/LHVM 的精度或效率优势；
-- FreqKV 的 4× 内存收益和低损失结论；
+- FreqKV 的 4× 内存收益和低损失结论；该结论已被旧实现审计撤回，
+  新频谱探针也没有恢复该主张；
 - 仅由频谱图片推导出的压缩结论；
 - 没有 compact payload 的“压缩后张量”内存比较；
 - 没有真实模型任务指标的 KV cache 方法比较。

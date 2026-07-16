@@ -1,0 +1,47 @@
+{
+  "decision_signals": {
+    "interpretation": "The historical Gaussian/RoPE-like generator is frequency-flat. The positive control is compressible, so the corrected probe can detect genuine low-frequency structure. Dropping the rFFT imaginary part explains the roughly half-energy historical plots.",
+    "seq64_gaussian_K_dct_components_for_90pct_energy_mean": 0.90625,
+    "seq64_gaussian_K_dct_low25_energy_mean": 0.25067229614700826,
+    "seq64_gaussian_K_historical_bug_reported_energy_at_90pct_mean": 0.4546375932495012,
+    "seq64_gaussian_V_dct_low25_energy_mean": 0.2476192400856699,
+    "seq64_smooth_control_K_dct_low25_energy_mean": 0.9982385974829249
+  },
+  "metadata": {
+    "duration_seconds": 0.439795,
+    "finished_utc": "2026-07-16T18:02:46.962723+00:00",
+    "head_dim": 64,
+    "heads": 4,
+    "host": "DESKTOP-9DUUN1B",
+    "numpy": "2.4.6",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "ratios": [
+      0.1,
+      0.25,
+      0.3,
+      0.5,
+      0.7,
+      0.75,
+      0.9
+    ],
+    "scope": "Synthetic falsification and numerical-path audit only; no real model KV capture, perplexity, long-context task, memory, or latency claim.",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "sequence_lengths": [
+      32,
+      64,
+      128
+    ],
+    "source_sha256": {
+      "scripts/run_freqkv_reassessment.py": "048aadd49a9635211b9ec77d0e2879845f8798adb598d8e66826092e259e77d7",
+      "src/fft_com/freqkv_audit.py": "54ca550099937fa5cf58d724d85b829f639c35113462fa6172131e96c612a955"
+    },
+    "started_utc": "2026-07-16T18:02:46.522928+00:00"
+  }
+}
