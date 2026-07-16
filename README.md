@@ -9,9 +9,38 @@
 3. 当前值得继续投入的主线；
 4. 后续进行公平对比所需的统一协议。
 
-整理日期：2026-07-16。
+初次整理：2026-07-16；模型级复核更新：2026-07-17。
 
-## 当前结论
+## 2026-07-17 模型级复核
+
+- **合法性 sanity check 通过**：不量化时，完整 `all_input` DCT 路径
+  PPL 为 `6.195030`，同协议 FP16 基线为 `6.195575`，说明在线正交
+  变换及逆变换没有破坏模型功能。
+- **统一 all-input dense rotation 不成立**：q4 Identity/DCT PPL 为
+  `6.5672/6.6778`；q3 为 `9.4400/40.2434`。DCT、Hadamard、RDFT
+  虽降低权重 MSE，却恶化了模型级误差结构，不能用局部 MSE 代替 PPL。
+- **本轮唯一可暂时保留的候选信号是 q_proj 输入侧 q3 旋转**：三个
+  互不重叠的 8,192-token test 区段上，DCT 相对同 scope Identity 的平均
+  `ΔPPL=-0.0237`，`3/3` 获胜；Hadamard 为 `-0.0244`，两者质量
+  基本同档。输出侧 DCT 仅 `2/3` 获胜且波动更大。
+- **Permutation、双侧旋转和 head/RoPE-aware 方案均不支持继续**：
+  spectral permutation 没有稳定超过普通 DCT，还需最多约
+  `1.47 Mbit` 元数据和在线 gather；head-aware 与 RoPE-pair DCT
+  也都差于同 scope Identity。
+- **DCT 是更快的实数 FFT proxy，但仍有明显在线成本**：在
+  `[1,256,4096]`、group 128 的未融合 PyTorch 参考实现中，DCT 为
+  `0.2714 ms`，Hadamard 为 `0.5356 ms`；但代表性 q_proj 路径 DCT
+  仍超过 Identity 的 4 倍。当前结果不代表 packed INT3/INT4 kernel。
+
+完整模型结论、协议与机器可读结果见：
+
+- [`docs/reports/model_rotation_study_20260717.md`](docs/reports/model_rotation_study_20260717.md)
+- [`docs/protocols/legal_model_rotation_protocol.md`](docs/protocols/legal_model_rotation_protocol.md)
+- [`docs/tables/model_rotation_results_20260717.csv`](docs/tables/model_rotation_results_20260717.csv)
+- [`docs/tables/segment_robustness_20260717.csv`](docs/tables/segment_robustness_20260717.csv)
+- [`docs/tables/transform_latency_20260717.csv`](docs/tables/transform_latency_20260717.csv)
+
+## 2026-07-16 块级结论
 
 - **继续 full-discrete 主线**：`learnable_logic` 的 Wmag7/A8、位平面、
   XNOR/popcount、整数 LUT 交易和部署导出仍是独立主线。
@@ -42,7 +71,9 @@
 
 ## 可复现实验
 
-实现只依赖 NumPy 和 safetensors，不使用 GPU：
+### 块级频域研究
+
+块级实现只依赖 NumPy 和 safetensors，不使用 GPU：
 
 ```bash
 export CUDA_VISIBLE_DEVICES=
@@ -64,11 +95,36 @@ down-proj，每类每层 8 个 64×64 块，并用五个采样种子复核。聚
 这里测量的是变换域统计、重建误差和 layer-0 激活代理，不包含完整模型
 旋转后的 perplexity、下游精度、真实 kernel 延迟或端到端存储收益。
 
+### 模型级合法旋转
+
+模型级实验需要 PyTorch、Transformers、Datasets、完整
+Llama-2-7B base checkpoint 和本地 WikiText-2 Arrow 数据：
+
+```bash
+pip install -e '.[model-eval]'
+python -m unittest discover -s tests -v
+export FFT_COM_MODEL_DIR=/path/to/Llama-2-7b-hf
+export FFT_COM_CALIBRATION_ARROW=/path/to/wikitext-train.arrow
+export FFT_COM_TEST_ARROW=/path/to/wikitext-test.arrow
+export CUDA_VISIBLE_DEVICES=0
+bash scripts/run_model_rotation_formal.sh
+bash scripts/run_segment_replicates.sh
+python scripts/summarize_model_rotation.py \
+  --runs-dir runs \
+  --latency-json runs/additional_8192/latency.json \
+  --output-dir runs/final_summary \
+  --publish
+```
+
+服务器路径、token 区段、量化规则、旋转位置和证据边界记录在
+[`docs/protocols/legal_model_rotation_protocol.md`](docs/protocols/legal_model_rotation_protocol.md)。
+发布的 JSON/CSV 不包含模型权重、原始数据或 calibration activation。
+
 ## 仓库结构
 
-- `src/fft_com/`：DCT/Hadamard/FFT、压缩、学习旋转与相位探针
-- `scripts/`：正式实验和多种子聚合入口
-- `tests/`：变换正交性、Hermitian payload、量化和 Kuramoto sanity test
+- `src/fft_com/`：DCT/Hadamard/RDFT、压缩、学习旋转、合法在线模型旋转与相位探针
+- `scripts/`：块级实验、模型级 PPL、跨区段复核、延迟基准和聚合入口
+- `tests/`：变换正交性、功能等价性、head/GQA 边界、量化和 Kuramoto sanity test
 - `docs/reports/`：方法判断、证据审计与主线说明
 - `docs/tables/`：可机器读取的结果表和方法对比表
 - `docs/evidence/`：从服务器原始文件提取的轻量证据

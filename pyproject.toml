@@ -12,6 +12,14 @@ dependencies = [
   "safetensors>=0.4",
 ]
 
+[project.optional-dependencies]
+model-eval = [
+  "accelerate>=1.0",
+  "datasets>=2.15",
+  "torch>=2.3",
+  "transformers>=4.57.1,<5",
+]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
